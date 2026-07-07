@@ -22,6 +22,10 @@ Portable, lightweight, self-contained sandboxes for AI coding agents - microVMs,
 
 - **[strangeClaw](https://github.com/itsthestranger/strangeClaw)** - Self-hosted autonomous agent running inside Firecracker microVMs. Host-side request broker checks policy, injects credentials, redacts responses - agent only sees denials, never holds real API keys. Two modes: `yolo` (direct host) and `fire` (VM isolation).
 
+- **[matchlock](https://github.com/jingkaihe/matchlock)** - Ephemeral microVMs via Firecracker + Virtualization.framework. Sub-second boot, any OCI image. MITM proxy injects secrets host-side - agent never sees real keys. Volume overlay mounts vanish on cleanup. SDKs for Go, Python, TypeScript.
+
+- **[bromure](https://github.com/rderaison/bromure)** - macOS app by Renaud Deraison (Nessus). Disposable Linux VMs via Virtualization.framework, destroyed on window close. Focus on web browsing and agentic coding in the same sandbox. Host-side MITM proxy swaps fake credentials for real ones - secrets never enter the VM. Supply-chain scanning, prompt-injection detection, multi-model panel. Claude Code, Codex. macOS 14+, Apple Silicon.
+
 ## Container Sandboxes
 
 - **[agent-sandbox](https://github.com/thomaspeklak/agent-sandbox)** - Rust CLI (`ags`), rootless Podman containers. Supports Claude, Codex, Gemini, OpenCode, Pi, and interactive shells. Hardened lockdown mode for untrusted repos (no secrets, no SSH agent, no host bridges). Clipboard bridge, OAuth proxy, browser sidecar, host UI via Glimpse. TOML config with per-repo overlays.
@@ -35,6 +39,8 @@ Portable, lightweight, self-contained sandboxes for AI coding agents - microVMs,
 - **[agent-sandbox](https://github.com/marvincaspar/agent-sandbox)** - Docker with `--cap-drop=ALL`, `--no-new-privileges`, non-root user. Optional proxy sidecar (tinyproxy) with allowlist-based domain filtering. Default-deny egress when proxy enabled. Supports Go, PHP 8.4/8.5 runtimes beyond TypeScript/Node base. Bind-mounts current directory.
 
 - **[sandboxed.sh](https://github.com/Th0rgal/sandboxed.sh)** - Self-hosted orchestrator using systemd-nspawn containers for per-mission isolation. Multi-runtime: Claude Code, OpenCode, Codex, Gemini, Grok. Git-backed Library for skills/tools/rules/agents/MCPs. Scheduled cron-like automations, model routing with failover. Web dashboard (Next.js) + iOS app.
+
+- **[OpenShell](https://github.com/NVIDIA/OpenShell)** - NVIDIA's agent sandbox runtime. Policy-enforced containers with declarative YAML for filesystem (Landlock), network (OPA proxy), process (seccomp BPF), and inference access. Hot-reload network/inference policies without restart. Credentials injected as env vars at runtime, never on disk.
 
 ## VM-Based
 
@@ -67,12 +73,15 @@ Portable, lightweight, self-contained sandboxes for AI coding agents - microVMs,
 | sand | Apple container | VM boot | APFS COW clone | Host default | Disposable | Claude Code |
 | HyperAgent | Hyperlight microVM | Fast | Plugin fs-read/fs-write (path-jailed) | Domain allowlist + SSRF | Per-sandbox | Copilot SDK |
 | strangeClaw | Firecracker | VM boot | Via request broker | Via broker | Per-session VM | Autonomous |
+| matchlock | Firecracker + VZ | Sub-second | OCI images, overlay mounts | MITM proxy, allowlist | Ephemeral, vanishes on cleanup | Claude Code, Codex |
+| bromure | VZ.framework (macOS) | VM boot | Disposable VM, destroyed on close | MITM proxy, domain allowlist | Ephemeral | Claude Code, Codex |
 | agent-sandbox (thomaspeklak) | Rootless Podman | Seconds | Bind-mount repo | Configurable bridges | Persistent volumes | Claude, Codex, Gemini, Pi, OpenCode |
 | yolobox | Docker | Seconds | Project dir only, home stays on host | Optional (`--no-network`) | Persistent volumes | Claude Code, Codex, Gemini, OpenCode, Copilot, Pi |
 | hort | OCI container (user namespaces) | Seconds | Git worktree (throwaway branch) | Egress allowlist | Disposable worktree | Claude Code, Aider, Gemini CLI |
 | agent-sandbox (mattolson) | Docker + proxy sidecar | Seconds | Repo dir, secrets host-only | Proxy allowlist + iptables | Persistent volumes | Claude Code, Codex, Gemini, OpenCode |
 | agent-sandbox (marvincaspar) | Docker (cap-drop=ALL) | Seconds | Bind-mount current dir | Optional proxy allowlist | Persistent volumes | Claude Code, Codex, Gemini |
 | sandboxed.sh | systemd-nspawn | Container | Per-mission directories | Host/managed | Persistent containers | Claude Code, OpenCode, Codex, Gemini, Grok |
+| OpenShell | Policy-enforced container | Seconds | Project dir, env-based credentials | OPA proxy, hot-reload policies | Ephemeral by default | Any CLI (YAML policy) |
 | locki | Lima VM + Incus | Minutes | Git worktrees, instant host sync | Bridged | Git worktrees | Claude, Codex, Gemini |
 | machine | Lima VM (Apple VZ) | VM boot | No host FS mount, clone inside VM | Host-only default | Persistent VM | Claude Code, Codex |
 | nilbox | Full VM (VZ/QEMU) | VM boot | FUSE-over-VSOCK | Agent Firewall (default-deny, domain gating) | Persistent VM | Claude Code, Codex, Gemini |
